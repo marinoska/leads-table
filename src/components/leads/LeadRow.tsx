@@ -1,6 +1,7 @@
 import { memo, useMemo } from 'react';
 import type { Lead } from '@/types';
 import { StatusBadge } from './StatusBadge';
+import { EnrichmentCell } from './EnrichmentCell';
 import styles from './leads.module.css';
 
 const dateFmt = new Intl.DateTimeFormat('en-US', {
@@ -76,6 +77,7 @@ function LeadRowComponent({ lead, rowIndex, size, start }: LeadRowProps) {
       <div role="cell" className={styles.cell}>
         {formatDate(lead.createdAt)}
       </div>
+      <EnrichmentCell leadId={lead.id} enrichment={lead.enrichment} />
     </div>
   );
 }

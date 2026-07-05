@@ -15,13 +15,14 @@ export interface LeadColumn {
 }
 
 export const LEAD_COLUMNS: LeadColumn[] = [
-  { key: 'name', label: 'Name', width: '16%', sortKey: 'name' },
-  { key: 'company', label: 'Company', width: '16%' },
-  { key: 'email', label: 'Email', width: '20%' },
-  { key: 'website', label: 'Website', width: '16%' },
-  { key: 'status', label: 'Status', width: '10%' },
-  { key: 'score', label: 'Score', width: '8%', align: 'right', sortKey: 'score' },
-  { key: 'createdAt', label: 'Created At', width: '14%', sortKey: 'createdAt' },
+  { key: 'name', label: 'Name', width: '14%', sortKey: 'name' },
+  { key: 'company', label: 'Company', width: '14%' },
+  { key: 'email', label: 'Email', width: '16%' },
+  { key: 'website', label: 'Website', width: '12%' },
+  { key: 'status', label: 'Status', width: '9%' },
+  { key: 'score', label: 'Score', width: '7%', align: 'right', sortKey: 'score' },
+  { key: 'createdAt', label: 'Created At', width: '12%', sortKey: 'createdAt' },
+  { key: 'enrichment', label: 'Enrichment', width: '16%' },
 ];
 
 /** Fixed row height (px). Keeps the virtual math exact and layout shift-free. */

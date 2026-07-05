@@ -1,25 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { enrichLead } from '@/server/leads/lead.service';
+import { EnrichmentError } from '@/server/enrichment/enrichment-error';
 
 /**
- * POST /api/leads/[id]/enrich
- *
- * BONUS TASK — AI Enrichment
- *
- * 1. Look up the lead by ID
- * 2. Call an LLM to research the company based on their website
- * 3. Save the enrichment text to the database
- * 4. Return the updated lead
- *
- * See README.md for full details.
+ * POST /api/leads/[id]/enrich — AI-enriches a single lead (bonus).
+ * Thin controller: delegate to the service; an expected EnrichmentError maps to
+ * its own status, and any other (LLM/network) error becomes a 502 to retry.
  */
-
 export async function POST(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
 
-  // TODO: implement AI enrichment
-  return NextResponse.json({ message: 'Not implemented' }, { status: 501 });
+  try {
+    const lead = await enrichLead(id);
+    return NextResponse.json(lead);
+  } catch (error) {
+    if (error instanceof EnrichmentError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+    return NextResponse.json({ error: 'Enrichment failed' }, { status: 502 });
+  }
 }

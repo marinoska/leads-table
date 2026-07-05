@@ -1,4 +1,4 @@
-import type { LeadsResponse } from '@/types';
+import type { Lead, LeadsResponse } from '@/types';
 import type { ListLeadsQuery } from '@/server/leads/lead.schema';
 import { sendApiRequest } from '@/lib/client';
 
@@ -36,4 +36,9 @@ export function fetchLeads(params: LeadsQueryParams, signal?: AbortSignal): Prom
   }
   const query = searchParams.toString();
   return sendApiRequest<LeadsResponse>('GET', `/leads${query ? `?${query}` : ''}`, { signal });
+}
+
+/** AI-enriches a single lead (bonus) and returns the updated lead. */
+export function enrichLead(id: string): Promise<Lead> {
+  return sendApiRequest<Lead>('POST', `/leads/${id}/enrich`);
 }
