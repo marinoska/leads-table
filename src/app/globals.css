@@ -19,9 +19,6 @@
   --badge-contacted-bg: #fef3c7;
   --badge-contacted-fg: #b45309;
 
-  --skel-base: #eeeeee;
-  --skel-shine: #f5f5f5;
-
   --error: #b91c1c;
   --hover: #f9fafb;
 }
@@ -47,9 +44,6 @@
     --badge-unqualified-fg: #cbd5e1;
     --badge-contacted-bg: rgba(245, 158, 11, 0.16);
     --badge-contacted-fg: #fcd34d;
-
-    --skel-base: #1e1e1e;
-    --skel-shine: #2a2a2a;
 
     --error: #f87171;
     --hover: #1c1c1c;

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { parseSearchParams, validationError } from '@/lib/api/validation';
+import { parseSearchParams, validationError } from '@/lib/validation';
 import { listLeadsQuerySchema } from '@/server/leads/lead.schema';
 import { listLeads } from '@/server/leads/lead.repository';
 

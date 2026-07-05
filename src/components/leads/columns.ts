@@ -1,7 +1,7 @@
 /**
  * Single source of truth for the leads table columns.
- * Shared by <LeadsTable /> and <TableSkeleton /> so their widths/headers can
- * never drift — which keeps the skeleton→data swap free of layout shift.
+ * Shared by the header and the data rows (via GRID_TEMPLATE_COLUMNS) so their
+ * column widths never drift.
  */
 export interface LeadColumn {
   key: string;
@@ -23,5 +23,5 @@ export const LEAD_COLUMNS: LeadColumn[] = [
 /** Fixed row height (px). Keeps the virtual math exact and layout shift-free. */
 export const ROW_HEIGHT = 44;
 
-/** Shared CSS grid template so header, data rows, and skeleton rows stay aligned. */
+/** Shared CSS grid template so the header and data rows stay column-aligned. */
 export const GRID_TEMPLATE_COLUMNS = LEAD_COLUMNS.map((col) => col.width).join(' ');

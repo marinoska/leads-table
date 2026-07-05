@@ -1,21 +1,26 @@
 import type { LeadsResponse } from '@/types';
 import type { ListLeadsQuery } from '@/server/leads/lead.schema';
-import { sendApiRequest } from './client';
-
-/** The list query params the UI is allowed to send to `GET /api/leads`. */
-export type FetchLeadsParams = Partial<
-  Pick<ListLeadsQuery, 'limit' | 'offset' | 'status' | 'search' | 'sortBy' | 'sortOrder'>
->;
+import { sendApiRequest } from '@/lib/client';
 
 /**
- * Fetches a page of leads. Drops empty/undefined params from the query string
- * and forwards the AbortSignal; transport + error handling live in sendApiRequest.
+ * Serializable query params: every value is present (`string | number`), so
+ * `undefined` can't be passed and `?x=undefined` can't be sent. An unset filter
+ * is simply an absent key — the caller builds this, omitting empties (useLeads).
  */
-export function fetchLeads(params: FetchLeadsParams, signal?: AbortSignal): Promise<LeadsResponse> {
-  const qs = new URLSearchParams();
+export type LeadsQueryParams = Record<string, string | number>;
+
+/** User-facing, server-side filters (status + search) — these feed the query key. */
+export type LeadListFilters = Partial<Pick<ListLeadsQuery, 'status' | 'search'>>;
+
+/**
+ * Fetches a page of leads by serializing the given (already-clean) params.
+ * Transport + error handling live in sendApiRequest.
+ */
+export function fetchLeads(params: LeadsQueryParams, signal?: AbortSignal): Promise<LeadsResponse> {
+  const searchParams = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
-    qs.set(key, String(value));
+    searchParams.set(key, String(value));
   }
-  const query = qs.toString();
+  const query = searchParams.toString();
   return sendApiRequest<LeadsResponse>('GET', `/leads${query ? `?${query}` : ''}`, { signal });
 }

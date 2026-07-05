@@ -12,7 +12,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    // suppressHydrationWarning: browser extensions (e.g. Tag Assistant) inject
+    // attributes on <html> before hydration; this ignores that attribute-only
+    // mismatch on <html> without affecting the rest of the tree.
+    <html lang="en" suppressHydrationWarning>
       <body>
         <Providers>{children}</Providers>
       </body>

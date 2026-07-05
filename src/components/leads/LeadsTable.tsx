@@ -17,20 +17,22 @@ interface LeadsTableProps {
   total: number;
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
+  isFetchNextPageError: boolean;
   fetchNextPage: () => void;
 }
 
 /**
  * Virtualized leads table. The header lives outside the scroll area (always
  * visible); only the rows scroll, and only the ones in view (plus overscan) are
- * in the DOM. Virtualization + infinite-load live in useLeadsVirtualizer; a fade
- * + spinner overlay the bottom while the next page loads.
+ * in the DOM. While the next page loads a fade + spinner overlay the bottom; if
+ * that page fails, an inline retry shows instead and the loaded rows stay put.
  */
 export function LeadsTable({
   leads,
   total,
   hasNextPage,
   isFetchingNextPage,
+  isFetchNextPageError,
   fetchNextPage,
 }: LeadsTableProps) {
   const { scrollRef, virtualRows, totalSize, lastIndex, firstVisibleRow, lastVisibleRow } =
@@ -41,6 +43,7 @@ export function LeadsTable({
     count: leads.length,
     hasNextPage,
     isFetchingNextPage,
+    isFetchNextPageError,
     fetchNextPage,
   });
 
@@ -86,15 +89,32 @@ export function LeadsTable({
               );
             })}
           </div>
+
+          {/* Inside the scroll content, so it only shows at the bottom and never
+              resizes the viewport (which would make it flicker). */}
+          {!hasNextPage && <p className={styles.endNote}>All leads loaded</p>}
         </div>
 
         {showSpinner && (
           <>
             <div className={styles.fade} aria-hidden="true" />
-            <div className={styles.spinner} role="status" aria-label="Loading more leads" />
+            <div
+              className={`${styles.spinner} ${styles.spinnerBottom}`}
+              role="status"
+              aria-label="Loading more leads"
+            />
           </>
         )}
       </div>
+
+      {isFetchNextPageError && !showSpinner && (
+        <div className={styles.loadError} role="alert">
+          <span>Couldn’t load more leads.</span>
+          <button type="button" className={styles.retryButton} onClick={() => fetchNextPage()}>
+            Retry
+          </button>
+        </div>
+      )}
     </>
   );
 }

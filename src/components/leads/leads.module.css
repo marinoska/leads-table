@@ -27,6 +27,40 @@
   margin-bottom: 0.75rem;
 }
 
+/* Filter toolbar */
+.filters {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+.searchInput,
+.statusSelect {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: 0.875rem;
+}
+.searchInput {
+  flex: 1;
+  min-width: 220px;
+}
+.searchInput:focus-visible,
+.statusSelect:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 1px;
+}
+
+/* End-of-list note (all pages loaded) */
+.endNote {
+  padding: 0.75rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
 /* Bordered frame (fills to the viewport bottom). The header sits above the
    scroll region so it's always visible; the fade + spinner overlay the rows.
    `--grid-cols` is set inline from LEAD_COLUMNS so header and rows share one
@@ -91,14 +125,6 @@
   background: var(--hover);
 }
 
-/* Skeleton rows render in normal flow (no virtualization during initial load). */
-.skelRow {
-  display: grid;
-  grid-template-columns: var(--grid-cols);
-  align-items: center;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
 .cell {
   padding: 0 0.875rem;
   white-space: nowrap;
@@ -154,28 +180,6 @@
   color: var(--badge-contacted-fg);
 }
 
-/* Skeleton shimmer bar */
-.skelBar {
-  height: 0.75rem;
-  border-radius: 4px;
-  background: linear-gradient(90deg, var(--skel-base) 25%, var(--skel-shine) 37%, var(--skel-base) 63%);
-  background-size: 400% 100%;
-  animation: shimmer 1.4s ease infinite;
-}
-@keyframes shimmer {
-  0% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0 50%;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .skelBar {
-    animation: none;
-  }
-}
-
 /* Empty / error state box */
 .stateBox {
   padding: 2rem;
@@ -206,30 +210,14 @@
   outline-offset: 2px;
 }
 
-/* Bottom fade + spinner, shown while the next page loads. The fade lets the
-   spinner read clearly over the scrolling rows; both are pinned to the frame. */
-.fade {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 72px;
-  background: linear-gradient(to bottom, transparent, var(--surface));
-  pointer-events: none;
-}
-
+/* Spinner ring (shared: centered initial load + pinned load-more). */
 .spinner {
-  position: absolute;
-  left: 50%;
-  bottom: 16px;
   width: 22px;
   height: 22px;
-  margin-left: -11px;
   border: 2px solid var(--border);
   border-top-color: var(--muted);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
-  pointer-events: none;
 }
 @keyframes spin {
   to {
@@ -240,4 +228,43 @@
   .spinner {
     animation: none;
   }
+}
+
+/* Centers the spinner in the content area for the initial (full-area) load. */
+.centerBox {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Bottom fade + load-more spinner, shown while the next page loads. The fade
+   lets the spinner read clearly over the scrolling rows; both pin to the frame. */
+.fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 72px;
+  background: linear-gradient(to bottom, transparent, var(--surface));
+  pointer-events: none;
+}
+.spinnerBottom {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  margin-left: -11px;
+  pointer-events: none;
+}
+
+/* Inline error when a next-page (scroll) load fails — the loaded rows stay put. */
+.loadError {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--error);
 }
