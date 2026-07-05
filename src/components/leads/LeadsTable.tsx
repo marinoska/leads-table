@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from 'react';
 import type { Lead } from '@/types';
+import type { LeadSort, LeadSortField } from '@/lib/api/leads';
 import { useSpinnerVisible } from '@/hooks/useSpinnerVisible';
 import { useLeadsVirtualizer } from '@/hooks/useLeadsVirtualizer';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
@@ -12,9 +13,17 @@ import styles from './leads.module.css';
 // Minimum time the loading spinner stays up, so instant local fetches still show it.
 const SPINNER_MIN_MS = 500;
 
+// Constant shared grid template for the header + rows — never changes, so it
+// lives at module scope rather than being rebuilt each render.
+const GRID_STYLE = { '--grid-cols': GRID_TEMPLATE_COLUMNS } as CSSProperties;
+
 interface LeadsTableProps {
   leads: Lead[];
   total: number;
+  sort: LeadSort;
+  onSort: (field: LeadSortField) => void;
+  /** Changes when the query (sort/filters) changes, so the table scrolls to top. */
+  scrollResetKey: string;
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
   isFetchNextPageError: boolean;
@@ -30,13 +39,16 @@ interface LeadsTableProps {
 export function LeadsTable({
   leads,
   total,
+  sort,
+  onSort,
+  scrollResetKey,
   hasNextPage,
   isFetchingNextPage,
   isFetchNextPageError,
   fetchNextPage,
 }: LeadsTableProps) {
   const { scrollRef, virtualRows, totalSize, lastIndex, firstVisibleRow, lastVisibleRow } =
-    useLeadsVirtualizer(leads.length);
+    useLeadsVirtualizer(leads.length, scrollResetKey);
 
   useInfiniteScroll({
     lastIndex,
@@ -57,22 +69,39 @@ export function LeadsTable({
         Showing {firstVisibleRow}–{lastVisibleRow} of {total.toLocaleString()} leads
       </p>
 
-      <div
-        role="table"
-        aria-rowcount={total + 1}
-        className={styles.tableFrame}
-        style={{ '--grid-cols': GRID_TEMPLATE_COLUMNS } as CSSProperties}
-      >
+      <div role="table" aria-rowcount={total + 1} className={styles.tableFrame} style={GRID_STYLE}>
         <div role="row" aria-rowindex={1} className={styles.header}>
-          {LEAD_COLUMNS.map((col) => (
-            <div
-              key={col.key}
-              role="columnheader"
-              className={`${styles.headerCell} ${col.align === 'right' ? styles.right : ''}`}
-            >
-              {col.label}
-            </div>
-          ))}
+          {LEAD_COLUMNS.map((col) => {
+            const { sortKey } = col;
+            const isSorted = sortKey !== undefined && sortKey === sort.sortBy;
+            const ariaSort =
+              sortKey === undefined
+                ? undefined
+                : isSorted
+                  ? sort.sortOrder === 'asc'
+                    ? 'ascending'
+                    : 'descending'
+                  : 'none';
+            return (
+              <div
+                key={col.key}
+                role="columnheader"
+                aria-sort={ariaSort}
+                className={`${styles.headerCell} ${col.align === 'right' ? styles.right : ''}`}
+              >
+                {sortKey === undefined ? (
+                  col.label
+                ) : (
+                  <button type="button" className={styles.sortButton} onClick={() => onSort(sortKey)}>
+                    <span className={styles.sortLabel}>{col.label}</span>
+                    <span className={styles.sortArrow} aria-hidden="true">
+                      {isSorted ? (sort.sortOrder === 'asc' ? '▲' : '▼') : ''}
+                    </span>
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         <div role="rowgroup" className={styles.scrollArea} ref={scrollRef}>
@@ -84,7 +113,8 @@ export function LeadsTable({
                   key={lead.id}
                   lead={lead}
                   rowIndex={virtualRow.index}
-                  style={{ height: virtualRow.size, transform: `translateY(${virtualRow.start}px)` }}
+                  size={virtualRow.size}
+                  start={virtualRow.start}
                 />
               );
             })}

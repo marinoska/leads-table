@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { useDebounce } from 'use-debounce';
 import type { Status } from '@/lib/constants';
-import type { LeadListFilters } from '@/lib/api/leads';
+import type { LeadListFilters, LeadSort, LeadSortField } from '@/lib/api/leads';
+import { DEFAULT_LEAD_SORT } from '@/lib/api/leads';
 import { useLeads } from '@/hooks/useLeads';
 import { LeadsFilters } from './LeadsFilters';
 import { LeadsTable } from './LeadsTable';
@@ -12,15 +13,16 @@ import styles from './leads.module.css';
 const SEARCH_DEBOUNCE_MS = 300;
 
 /**
- * Client container for the leads table. Owns the filter state (search + status),
- * debounces the search, and passes the filters to useLeads — which puts them in
- * the query key, so changing a filter refetches from offset 0 and clears the old
- * results. The filter bar stays mounted across loading/error/empty so the input
- * keeps focus while results reload.
+ * Client container for the leads table. Owns the query state — the search and
+ * status filters plus the active sort — debounces the search, and passes it all
+ * to useLeads, which puts it in the query key so changing any of it refetches
+ * from offset 0. The filter bar stays mounted across loading/error/empty so the
+ * input keeps focus while results reload.
  */
 export function LeadsTableClient() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<Status | ''>('');
+  const [sort, setSort] = useState<LeadSort>(DEFAULT_LEAD_SORT);
   const [debouncedSearch] = useDebounce(search, SEARCH_DEBOUNCE_MS);
 
   // Empty search/status → undefined: the query key omits it, and useLeads drops
@@ -28,6 +30,20 @@ export function LeadsTableClient() {
   const filters: LeadListFilters = {
     search: debouncedSearch || undefined,
     status: status || undefined,
+    ...sort,
+  };
+
+  // Changes whenever the query changes (sort or a filter); the table uses it to
+  // scroll back to the top when the result set is replaced.
+  const scrollResetKey = JSON.stringify(filters);
+
+  // Clicking the active column flips its direction; a new column starts ascending.
+  const handleSort = (field: LeadSortField) => {
+    setSort((current) =>
+      current.sortBy === field
+        ? { sortBy: field, sortOrder: current.sortOrder === 'asc' ? 'desc' : 'asc' }
+        : { sortBy: field, sortOrder: 'asc' },
+    );
   };
 
   const {
@@ -40,6 +56,10 @@ export function LeadsTableClient() {
     isFetchingNextPage,
     isFetchNextPageError,
   } = useLeads(filters);
+
+  // Flatten the loaded pages once per data change, not on every render.
+  const leads = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
+  const total = data?.pages[0]?.total ?? 0;
 
   let content: ReactNode;
   if (isPending) {
@@ -60,8 +80,6 @@ export function LeadsTableClient() {
       </div>
     );
   } else {
-    const leads = data.pages.flatMap((page) => page.data);
-    const total = data.pages[0].total;
     content =
       leads.length === 0 ? (
         <div className={styles.stateBox}>No leads found.</div>
@@ -69,6 +87,9 @@ export function LeadsTableClient() {
         <LeadsTable
           leads={leads}
           total={total}
+          sort={sort}
+          onSort={handleSort}
+          scrollResetKey={scrollResetKey}
           hasNextPage={hasNextPage}
           isFetchingNextPage={isFetchingNextPage}
           isFetchNextPageError={isFetchNextPageError}

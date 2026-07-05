@@ -104,6 +104,39 @@
   min-width: 0; /* let the grid cell shrink so ellipsis can kick in */
 }
 
+/* Sortable header control. It's inline-flex (inline-level), so a right-aligned
+   column's `text-align: right` still positions it correctly. */
+.sortButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  max-width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.sortLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sortButton:hover {
+  color: var(--link);
+}
+.sortButton:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+/* Fixed width so toggling the arrow never shifts the label. */
+.sortArrow {
+  flex: none;
+  width: 0.8em;
+  font-size: 0.7em;
+}
+
 /* Full-height spacer; the virtualizer absolutely-positions rows inside it. */
 .rowGroup {
   position: relative;
