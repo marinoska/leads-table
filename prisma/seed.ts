@@ -1,6 +1,7 @@
 import { prisma } from '../src/lib/prisma';
 import { faker } from '@faker-js/faker';
 import { Prisma } from '../generated/prisma';
+import { STATUSES } from '../src/lib/constants';
 
 /**
  * Seed script — populate the database with 10,000 realistic leads.
@@ -18,7 +19,6 @@ import { Prisma } from '../generated/prisma';
  * - Idempotent: only seeds when the table is empty (skips otherwise).
  */
 
-const STATUSES = ['new', 'qualified', 'unqualified', 'contacted'] as const;
 const TOTAL = 10_000;
 const BATCH = 500;
 

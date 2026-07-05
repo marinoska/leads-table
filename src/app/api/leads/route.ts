@@ -1,21 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { parseSearchParams, validationError } from '@/lib/api/validation';
+import { listLeadsQuerySchema } from '@/server/leads/lead.schema';
+import { listLeads } from '@/server/leads/lead.repository';
 
 /**
- * GET /api/leads
- *
- * Build a paginated, filterable, sortable leads endpoint using Prisma.
- *
- * 1. Seed the database with 10,000 realistic leads (once)
- * 2. Implement the GET handler with query params:
- *    - limit, offset, status, search, sortBy, sortOrder
- * 3. Use Prisma queries (findMany, count) — not raw SQL or JS filtering
- * 4. Validate all inputs — return 400 for invalid params
- *
- * See README.md for full details.
+ * GET /api/leads — paginated, filterable, sortable list of leads.
+ * Validates the query params, delegates the query to the lead repository,
+ * then shapes the paginated response. Invalid params → 400.
  */
-
 export async function GET(request: NextRequest) {
-  // TODO: implement paginated, filterable, sortable endpoint
-  return NextResponse.json({ message: 'Not implemented' }, { status: 501 });
+  const parsed = parseSearchParams(request.nextUrl.searchParams, listLeadsQuerySchema);
+  if (!parsed.success) return validationError(parsed.error);
+
+  return NextResponse.json(await listLeads(parsed.data));
 }
