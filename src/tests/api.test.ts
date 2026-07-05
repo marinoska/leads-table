@@ -136,7 +136,10 @@ describe('Seed data', () => {
   });
 
   test('seeded leads have createdAt dates spread over the last 90 days', async () => {
-    const res = await fetchLeadsJson({ limit: '100' });
+    // Sort by name (not the default createdAt desc) so the 100-row sample isn't
+    // just the newest leads — which bunch into a few days — but is spread across
+    // the full 90-day range.
+    const res = await fetchLeadsJson({ limit: '100', sortBy: 'name' });
     const now = Date.now();
     const ninetyDaysAgo = now - 90 * 24 * 60 * 60 * 1000;
 
