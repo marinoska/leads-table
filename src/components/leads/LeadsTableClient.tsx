@@ -6,12 +6,21 @@ import { TableSkeleton } from './TableSkeleton';
 import styles from './leads.module.css';
 
 /**
- * Client container for the leads table. Reads query state from useLeads and
- * decides which UI to render — loading / error / empty / data — then hands
- * already-prepared data to the presentational <LeadsTable />.
+ * Client container for the leads table. Reads query state from useLeads, decides
+ * which UI to render — loading / error / empty / data — flattens the loaded
+ * pages, and hands the infinite-query controls to the virtualized table.
  */
 export function LeadsTableClient() {
-  const { data, isPending, isError, error, refetch } = useLeads();
+  const {
+    data,
+    isPending,
+    isError,
+    error,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useLeads();
 
   if (isPending) {
     return <TableSkeleton />;
@@ -28,17 +37,22 @@ export function LeadsTableClient() {
     );
   }
 
-  const { data: leads, total } = data;
+  const leads = data.pages.flatMap((page) => page.data);
+  const total = data.pages[0].total;
+
   if (leads.length === 0) {
     return <div className={styles.stateBox}>No leads found.</div>;
   }
 
   return (
-    <div>
-      <p className={styles.count}>
-        Showing {leads.length} of {total.toLocaleString()} leads
-      </p>
-      <LeadsTable leads={leads} />
+    <div className={styles.results}>
+      <LeadsTable
+        leads={leads}
+        total={total}
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        fetchNextPage={fetchNextPage}
+      />
     </div>
   );
 }

@@ -1,7 +1,18 @@
 .page {
   max-width: 1100px;
+  height: 100dvh; /* definite height so the flex chain can bound the scroll area */
   margin: 0 auto;
   padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fills the space under the heading so the table reaches the viewport bottom. */
+.results {
+  flex: 1;
+  min-height: 0; /* let the scroll area shrink and scroll instead of overflowing */
+  display: flex;
+  flex-direction: column;
 }
 
 .title {
@@ -16,43 +27,84 @@
   margin-bottom: 0.75rem;
 }
 
-/* Horizontal scroll lives inside this wrapper so the page body never scrolls. */
-.tableWrap {
-  width: 100%;
-  overflow-x: auto;
+/* Bordered frame (fills to the viewport bottom). The header sits above the
+   scroll region so it's always visible; the fade + spinner overlay the rows.
+   `--grid-cols` is set inline from LEAD_COLUMNS so header and rows share one
+   grid template. */
+.tableFrame {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden; /* clip the fade to the rounded corners */
   border: 1px solid var(--border);
   border-radius: 8px;
-}
-
-.table {
-  width: 100%;
-  min-width: 720px;
-  table-layout: fixed; /* fixed layout → column widths never depend on content */
-  border-collapse: collapse;
-  font-size: 0.875rem;
   background: var(--surface);
+  font-size: 0.875rem;
   color: var(--foreground);
 }
 
-.th {
-  text-align: left;
-  font-weight: 600;
-  padding: 0.625rem 0.875rem;
-  border-bottom: 1px solid var(--border);
+/* Fixed column header — outside the scroll area, so it's always visible. */
+.header {
+  display: grid;
+  grid-template-columns: var(--grid-cols);
   background: var(--surface-header);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  border-bottom: 1px solid var(--border);
 }
 
-.td {
-  height: 44px; /* fixed row height → no layout shift between rows */
-  padding: 0 0.875rem;
-  border-bottom: 1px solid var(--border-subtle);
+/* Only the rows scroll. This element is the virtualizer's scroll container. */
+.scrollArea {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.headerCell {
+  padding: 0.625rem 0.875rem;
+  font-weight: 600;
+  text-align: left;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  vertical-align: middle;
+  min-width: 0; /* let the grid cell shrink so ellipsis can kick in */
+}
+
+/* Full-height spacer; the virtualizer absolutely-positions rows inside it. */
+.rowGroup {
+  position: relative;
+  width: 100%;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: var(--grid-cols);
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--surface);
+}
+.row:hover {
+  background: var(--hover);
+}
+
+/* Skeleton rows render in normal flow (no virtualization during initial load). */
+.skelRow {
+  display: grid;
+  grid-template-columns: var(--grid-cols);
+  align-items: center;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.cell {
+  padding: 0 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0; /* let the grid cell shrink so ellipsis can kick in */
 }
 
 .right {
@@ -152,4 +204,40 @@
 .retryButton:focus-visible {
   outline: 2px solid var(--link);
   outline-offset: 2px;
+}
+
+/* Bottom fade + spinner, shown while the next page loads. The fade lets the
+   spinner read clearly over the scrolling rows; both are pinned to the frame. */
+.fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 72px;
+  background: linear-gradient(to bottom, transparent, var(--surface));
+  pointer-events: none;
+}
+
+.spinner {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  width: 22px;
+  height: 22px;
+  margin-left: -11px;
+  border: 2px solid var(--border);
+  border-top-color: var(--muted);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  pointer-events: none;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
 }

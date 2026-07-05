@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import type { Lead } from '@/types';
 import { StatusBadge } from './StatusBadge';
 import styles from './leads.module.css';
@@ -13,20 +14,29 @@ function formatDate(iso: string): string {
   return Number.isNaN(date.getTime()) ? '—' : dateFmt.format(date);
 }
 
+interface LeadRowProps {
+  lead: Lead;
+  /** 0-based data index; +2 gives the ARIA row index (header is row 1). */
+  rowIndex: number;
+  /** Height + translateY supplied by the virtualizer. */
+  style: CSSProperties;
+}
+
 /**
- * Renders one lead row. Row height is fixed via CSS (no content-driven jumps),
- * and an empty email/website degrades to a muted dash.
+ * Renders one lead row as a grid row. The virtualizer positions it via `style`;
+ * fixed height means no content-driven layout shift, and an empty email/website
+ * degrades to a muted dash.
  */
-export function LeadRow({ lead }: { lead: Lead }) {
+export function LeadRow({ lead, rowIndex, style }: LeadRowProps) {
   return (
-    <tr>
-      <td className={styles.td} title={lead.name}>
+    <div role="row" aria-rowindex={rowIndex + 2} className={styles.row} style={style}>
+      <div role="cell" className={styles.cell} title={lead.name}>
         {lead.name}
-      </td>
-      <td className={styles.td} title={lead.company}>
+      </div>
+      <div role="cell" className={styles.cell} title={lead.company}>
         {lead.company}
-      </td>
-      <td className={styles.td} title={lead.email}>
+      </div>
+      <div role="cell" className={styles.cell} title={lead.email}>
         {lead.email ? (
           <a className={styles.link} href={`mailto:${lead.email}`}>
             {lead.email}
@@ -34,8 +44,8 @@ export function LeadRow({ lead }: { lead: Lead }) {
         ) : (
           <span className={styles.muted}>—</span>
         )}
-      </td>
-      <td className={styles.td} title={lead.website}>
+      </div>
+      <div role="cell" className={styles.cell} title={lead.website}>
         {lead.website ? (
           <a
             className={styles.link}
@@ -48,12 +58,16 @@ export function LeadRow({ lead }: { lead: Lead }) {
         ) : (
           <span className={styles.muted}>—</span>
         )}
-      </td>
-      <td className={styles.td}>
+      </div>
+      <div role="cell" className={styles.cell}>
         <StatusBadge status={lead.status} />
-      </td>
-      <td className={`${styles.td} ${styles.right}`}>{lead.score}</td>
-      <td className={styles.td}>{formatDate(lead.createdAt)}</td>
-    </tr>
+      </div>
+      <div role="cell" className={`${styles.cell} ${styles.right}`}>
+        {lead.score}
+      </div>
+      <div role="cell" className={styles.cell}>
+        {formatDate(lead.createdAt)}
+      </div>
+    </div>
   );
 }

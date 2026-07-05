@@ -19,3 +19,9 @@ export const LEAD_COLUMNS: LeadColumn[] = [
   { key: 'score', label: 'Score', width: '8%', align: 'right' },
   { key: 'createdAt', label: 'Created At', width: '14%' },
 ];
+
+/** Fixed row height (px). Keeps the virtual math exact and layout shift-free. */
+export const ROW_HEIGHT = 44;
+
+/** Shared CSS grid template so header, data rows, and skeleton rows stay aligned. */
+export const GRID_TEMPLATE_COLUMNS = LEAD_COLUMNS.map((col) => col.width).join(' ');
