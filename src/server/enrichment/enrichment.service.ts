@@ -1,6 +1,6 @@
-import { findLeadById, saveEnrichment } from './lead.repository';
-import { isEnrichmentConfigured, researchCompany } from '../enrichment/openai';
-import { EnrichmentError } from '../enrichment/enrichment-error';
+import { findLeadById, saveEnrichment } from './enrichment.repository';
+import { isEnrichmentConfigured, researchCompany } from './enrichment.llm';
+import { EnrichmentError } from './enrichment.error';
 
 /**
  * Enriches a lead: look it up, guard against missing / already-enriched / not

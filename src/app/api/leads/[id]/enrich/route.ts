@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { enrichLead } from '@/server/leads/lead.service';
-import { EnrichmentError } from '@/server/enrichment/enrichment-error';
+import { enrichLead } from '@/server/enrichment/enrichment.service';
+import { EnrichmentError } from '@/server/enrichment/enrichment.error';
 
 /**
  * POST /api/leads/[id]/enrich — AI-enriches a single lead (bonus).
