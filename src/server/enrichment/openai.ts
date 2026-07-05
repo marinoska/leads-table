@@ -4,7 +4,7 @@ const MODEL = 'gpt-4o-mini';
 const MAX_TOKENS = 150;
 const TIMEOUT_MS = 15_000;
 // High, for varied phrasing across leads (default is 1.0; the max is 2.0).
-const TEMPERATURE = 1.7;
+const TEMPERATURE = 1.5;
 
 /** Whether the enrichment integration is configured (an API key is present). */
 export function isEnrichmentConfigured(): boolean {
