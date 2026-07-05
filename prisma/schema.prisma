@@ -14,7 +14,7 @@ model Lead {
   id         String   @id @default(cuid())
   name       String
   company    String
-  email      String
+  email      String   @unique
   website    String
   status     String   // 'new' | 'qualified' | 'unqualified' | 'contacted'
   score      Int      // 0–100
