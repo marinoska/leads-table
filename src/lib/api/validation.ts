@@ -11,5 +11,8 @@ export function validationError(error: ZodError, message = 'Invalid query parame
 
 /** Parse a URLSearchParams against a Zod schema (return type is inferred from the schema). */
 export function parseSearchParams<T extends z.ZodTypeAny>(searchParams: URLSearchParams, schema: T) {
-  return schema.safeParse(Object.fromEntries(searchParams));
+  // Treat empty-string params (e.g. `?status=`) as absent so the schema's
+  // defaults/optionals apply — otherwise `?limit=` coerces to 0 and `?status=` 400s.
+  const entries = [...searchParams].filter(([, value]) => value !== '');
+  return schema.safeParse(Object.fromEntries(entries));
 }

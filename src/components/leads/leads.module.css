@@ -1,0 +1,155 @@
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.count {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+}
+
+/* Horizontal scroll lives inside this wrapper so the page body never scrolls. */
+.tableWrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.table {
+  width: 100%;
+  min-width: 720px;
+  table-layout: fixed; /* fixed layout → column widths never depend on content */
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  background: var(--surface);
+  color: var(--foreground);
+}
+
+.th {
+  text-align: left;
+  font-weight: 600;
+  padding: 0.625rem 0.875rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-header);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.td {
+  height: 44px; /* fixed row height → no layout shift between rows */
+  padding: 0 0.875rem;
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+.right {
+  text-align: right;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.link {
+  color: var(--link);
+}
+.link:hover {
+  text-decoration: underline;
+}
+.link:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Status badges */
+.badge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  text-transform: capitalize;
+}
+.badgeNew {
+  background: var(--badge-new-bg);
+  color: var(--badge-new-fg);
+}
+.badgeQualified {
+  background: var(--badge-qualified-bg);
+  color: var(--badge-qualified-fg);
+}
+.badgeUnqualified {
+  background: var(--badge-unqualified-bg);
+  color: var(--badge-unqualified-fg);
+}
+.badgeContacted {
+  background: var(--badge-contacted-bg);
+  color: var(--badge-contacted-fg);
+}
+
+/* Skeleton shimmer bar */
+.skelBar {
+  height: 0.75rem;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--skel-base) 25%, var(--skel-shine) 37%, var(--skel-base) 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+@keyframes shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skelBar {
+    animation: none;
+  }
+}
+
+/* Empty / error state box */
+.stateBox {
+  padding: 2rem;
+  text-align: center;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.errorText {
+  color: var(--error);
+  margin-bottom: 0.75rem;
+}
+.retryButton {
+  padding: 0.375rem 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--foreground);
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+.retryButton:hover {
+  background: var(--hover);
+}
+.retryButton:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}

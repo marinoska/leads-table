@@ -10,7 +10,7 @@ import { STATUSES } from '../src/lib/constants';
  *
  * Design notes:
  * - website is the first two significant words of the company + a faker TLD
- *   (domainSuffix); email is first.last on that SAME domain, so website === email.
+ *   (domainSuffix); email is first.last on that SAME domain, so website === the email's domain.
  * - emails are deduped via a Set: a numeric suffix is added ONLY on an actual
  *   collision, so the vast majority stay clean (email is @unique).
  * - statuses come from faker.helpers.arrayElement, so all four appear in
