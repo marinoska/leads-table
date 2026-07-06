@@ -8,6 +8,7 @@ import { DEFAULT_LEAD_SORT } from '@/lib/api/leads';
 import { useLeads } from '@/hooks/useLeads';
 import { LeadsFilters } from './LeadsFilters';
 import { LeadsTable } from './LeadsTable';
+import { ErrorState } from './ErrorState';
 import styles from './leads.module.css';
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -23,6 +24,7 @@ export function LeadsTableClient() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<Status | ''>('');
   const [sort, setSort] = useState<LeadSort>(DEFAULT_LEAD_SORT);
+  const [retrying, setRetrying] = useState(false);
   const [debouncedSearch] = useDebounce(search, SEARCH_DEBOUNCE_MS);
 
   // Empty search/status → undefined: the query key omits it, and useLeads drops
@@ -49,7 +51,7 @@ export function LeadsTableClient() {
   const {
     data,
     isPending,
-    error,
+    isError,
     refetch,
     fetchNextPage,
     hasNextPage,
@@ -61,23 +63,29 @@ export function LeadsTableClient() {
   const leads = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
   const total = data?.pages[0]?.total ?? 0;
 
+  // Retry the failed load, showing the spinner (not the stale cached rows) while
+  // the refetch is in flight.
+  const handleRetry = () => {
+    setRetrying(true);
+    refetch().finally(() => setRetrying(false));
+  };
+
   let content: ReactNode;
-  if (isPending) {
+  if (isPending || retrying) {
     content = (
       <div className={styles.centerBox}>
         <div className={styles.spinner} role="status" aria-label="Loading leads" />
       </div>
     );
-  } else if (!data) {
-    // Initial load failed (no pages yet) — full error state with retry. A failed
-    // next page keeps its data, so it's handled inline at the bottom of the table.
+  } else if ((isError && !isFetchNextPageError) || !data) {
+    // The load failed (initial / filter / sort). Gate on isError, not just !data, so a
+    // failure shows this clean card instead of the stale rows keepPreviousData keeps.
+    // A failed *next* page keeps its rows and is handled inline in the table.
     content = (
-      <div className={styles.stateBox} role="alert">
-        <p className={styles.errorText}>Couldn’t load leads: {error?.message ?? 'please try again'}</p>
-        <button type="button" className={styles.retryButton} onClick={() => refetch()}>
-          Retry
-        </button>
-      </div>
+      <ErrorState
+        message="Couldn’t load leads. Please check your connection and try again."
+        onRetry={handleRetry}
+      />
     );
   } else {
     content =
